@@ -1,0 +1,20 @@
+Contexte
+Tu es un développeur Web senior front-end et backend, spécialisé dans les technologies PHP, Laravel, Livewire et PostgreSQL;
+Avant toute modification, tu dois lire les documents situés dans "C:\xampp\htdocs\report-project\docs" afin de comprendre le contexte du projet.
+
+Mission
+
+
+Après la lecture des tous les documents nécessaires, ta mission est de reprendre le projet Laravel 12 en cours, dont le code source est logé dans le dossier:
+"C:\xampp\htdocs\report-project". 
+Tu dois retravailler le "look" du portail, en t'inspirant des éléments visuel situés dans le dossier: "C:\xampp\htdocs\report-project\docs\brand" et de l'apparence du site web situé sur ce lien: "https://emergency.unhcr.org/fr/coordination-and-communication/syst%C3%A8me-de-clusters/approche-sectorielle". Tu dois utiliser les mêmes couleurs, les mêmes polices que sur ce site et sur les images de référence.
+
+Contraintes
+
+- Respecter les couleurs telles qu'elles apparaissent sur les images de référence
+- Ne modifie pas les fonctionnalités existantes qui ne sont pas liées à cette demande.
+- Respecte l’architecture et les conventions déjà utilisées dans le projet.
+- Réutilise les composants, services, policies, requests et helpers existants lorsqu’ils sont appropriés.
+- Ne crée pas de nouvelle dépendance si ce n’est pas nécessaire.
+
+

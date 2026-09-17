@@ -1,0 +1,117 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --color-unhcr-blue: #0072BC;
+    --color-unhcr-lightblue: #99C7E4;
+    --color-unhcr-pale: #EEF6FB;
+    --color-unhcr-gray: #CCCCCC;
+    --color-unhcr-dark: #18375F;
+    --color-unhcr-ink: #111827;
+    --font-sans: 'ProximaNova', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    /* 
+     * Correction globale pour empêcher les inputs de déborder de leurs conteneurs flex ou grid 
+     * à cause de leur largeur minimale intrinsèque (surtout pour input[type="date"]).
+     */
+    input, select, textarea {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    body {
+        background: #f7f9fb;
+        color: var(--color-unhcr-ink);
+    }
+
+    :focus-visible {
+        outline: 3px solid #99C7E4;
+        outline-offset: 3px;
+    }
+
+    input:not([type='checkbox']):not([type='radio']), select, textarea {
+        border-color: #b8c4ce;
+        border-radius: .25rem;
+        background-color: #fff;
+    }
+
+    input:not([type='checkbox']):not([type='radio']):focus, select:focus, textarea:focus {
+        border-color: #0072BC;
+        box-shadow: 0 0 0 3px rgb(0 114 188 / 16%);
+        outline: none;
+    }
+}
+
+@layer components {
+    .portal-page {
+        @apply space-y-6;
+    }
+
+    .portal-heading {
+        @apply border-b border-slate-200 pb-5;
+    }
+
+    .portal-heading h1,
+    .portal-heading h2 {
+        @apply text-3xl font-bold tracking-tight text-unhcr-ink;
+    }
+
+    .portal-kicker {
+        @apply mb-2 text-xs font-bold uppercase tracking-[0.12em] text-unhcr-blue;
+    }
+
+    .portal-card {
+        @apply rounded-sm border border-slate-200 bg-white shadow-[0_1px_2px_rgb(15_23_42/0.06)];
+    }
+
+    .portal-filter {
+        @apply rounded-sm border border-slate-200 bg-unhcr-pale p-4;
+    }
+
+    .portal-button-primary {
+        @apply inline-flex items-center justify-center rounded-sm bg-unhcr-blue px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#005b96] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .portal-button-secondary {
+        @apply inline-flex items-center justify-center rounded-sm border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-unhcr-blue hover:text-unhcr-blue focus-visible:outline-none;
+    }
+
+    .portal-table thead {
+        @apply bg-unhcr-pale;
+    }
+
+    .portal-table th {
+        @apply text-unhcr-dark;
+    }
+
+    .portal-table tbody tr {
+        @apply transition-colors hover:bg-slate-50;
+    }
+
+    .portal-modal-panel {
+        @apply rounded-sm border-t-4 border-unhcr-blue;
+    }
+
+    .portal-modal-title {
+        @apply border-b border-slate-200 pb-3 text-xl font-bold text-unhcr-ink;
+    }
+
+    .portal-nav-link {
+        @apply inline-flex items-center border-b-4 border-transparent px-4 text-sm font-bold transition hover:border-blue-200 hover:bg-[#0067aa];
+    }
+
+    .portal-nav-link-active {
+        @apply border-blue-100 bg-[#0067aa];
+    }
+
+    .portal-nav-link-mobile {
+        @apply block rounded-sm px-3 py-2 text-sm font-bold hover:bg-[#0067aa];
+    }
+}
