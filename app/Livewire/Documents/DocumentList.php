@@ -28,6 +28,15 @@ class DocumentList extends Component
         return response()->download(storage_path('app/public/' . $document->file_path), $document->original_name);
     }
 
+    public function deleteDocument($id)
+    {
+        $document = Document::findOrFail($id);
+        $this->authorize('delete', $document);
+        $document->delete();
+
+        notify()->success('Document supprimé avec succès');
+    }
+
     public function render()
     {
         $documents = Document::query()

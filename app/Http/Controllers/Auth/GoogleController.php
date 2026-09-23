@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
@@ -56,7 +57,11 @@ class GoogleController extends Controller
             return redirect()->route('dashboard');
 
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Erreur lors de la connexion avec Google : ' . $e->getMessage());
+            Log::error('Erreur lors de la connexion avec Google : ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            return redirect()->route('login')->with('error', 'Une erreur est survenue lors de la connexion avec Google. Veuillez réessayer.');
         }
     }
 }

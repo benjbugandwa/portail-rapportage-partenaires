@@ -79,8 +79,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $activite->date_activite->format('d/m/Y') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button wire:click="$dispatch('edit-activite', { id: '{{ $activite->id }}' })" class="font-bold text-unhcr-blue hover:text-unhcr-dark">Éditer</button>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            @can('update', $activite)
+                                <button wire:click="$dispatch('edit-activite', { id: '{{ $activite->id }}' })" class="font-bold text-unhcr-blue hover:text-unhcr-dark">Éditer</button>
+                            @endcan
+                            @can('delete', $activite)
+                                <button wire:confirm="Êtes-vous sûr de vouloir supprimer cette activité ?" wire:click="deleteActivite('{{ $activite->id }}')" class="font-bold text-red-600 hover:text-red-800">Supprimer</button>
+                            @endcan
                         </td>
                     </tr>
                 @empty

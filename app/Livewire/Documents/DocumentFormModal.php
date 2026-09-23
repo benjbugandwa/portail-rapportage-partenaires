@@ -29,6 +29,8 @@ class DocumentFormModal extends Component
     #[On('openDocumentModal')]
     public function openModal()
     {
+        $this->authorize('create', Document::class);
+
         $this->reset([
             'document_id', 'doc_name', 'date_publication', 
             'doc_category', 'doc_summary', 'file', 'existing_file_path', 'original_name'
@@ -42,6 +44,7 @@ class DocumentFormModal extends Component
     public function editDocument($id)
     {
         $document = Document::findOrFail($id);
+        $this->authorize('update', $document);
         
         $this->document_id = $document->id;
         $this->doc_name = $document->doc_name;
@@ -61,6 +64,12 @@ class DocumentFormModal extends Component
 
     public function save()
     {
+        if ($this->document_id) {
+            $existingDoc = Document::findOrFail($this->document_id);
+            $this->authorize('update', $existingDoc);
+        } else {
+            $this->authorize('create', Document::class);
+        }
         $rules = [
             'doc_name' => 'required|string|max:255',
             'date_publication' => 'required|date',

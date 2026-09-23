@@ -35,6 +35,8 @@ class ActiviteFormModal extends Component
     #[On('open-activite-modal')]
     public function openModal()
     {
+        $this->authorize('create', Activite::class);
+
         $this->reset([
             'activite_id', 'intitule', 'date_activite', 'secteur_id', 
             'description', 'defis_contraintes', 'localites', 'statut', 
@@ -48,6 +50,7 @@ class ActiviteFormModal extends Component
     public function editActivite($id)
     {
         $activite = Activite::findOrFail($id);
+        $this->authorize('update', $activite);
         
         $this->activite_id = $activite->id;
         $this->intitule = $activite->intitule;
@@ -73,6 +76,13 @@ class ActiviteFormModal extends Component
 
     public function save()
     {
+        if ($this->activite_id) {
+            $existingActivite = Activite::findOrFail($this->activite_id);
+            $this->authorize('update', $existingActivite);
+        } else {
+            $this->authorize('create', Activite::class);
+        }
+
         $this->validate([
             'intitule' => 'required|string|max:255',
             'date_activite' => 'required|date',

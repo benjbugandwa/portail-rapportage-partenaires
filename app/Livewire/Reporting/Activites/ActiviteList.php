@@ -25,6 +25,15 @@ class ActiviteList extends Component
     public function updatingProvinceId() { $this->resetPage(); }
     public function updatingStatut() { $this->resetPage(); }
 
+    public function deleteActivite($id)
+    {
+        $activite = Activite::findOrFail($id);
+        $this->authorize('delete', $activite);
+        $activite->delete();
+
+        notify()->success('Activité supprimée avec succès');
+    }
+
     public function render()
     {
         $user = Auth::user();
