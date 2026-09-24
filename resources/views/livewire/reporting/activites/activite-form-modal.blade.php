@@ -15,28 +15,104 @@
                                 </h3>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- Intitulé -->
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-700">Intitulé de l'activité *</label>
-                                        <input type="text" wire:model="intitule" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                                        @error('intitule') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                    </div>
-
-                                    <!-- Date & Secteur -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Date *</label>
-                                        <input type="date" wire:model="date_activite" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                                        @error('date_activite') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                    </div>
+                                    <!-- 1. Secteur & Date -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Secteur *</label>
-                                        <select wire:model="secteur_id" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                                            <option value="">Sélectionnez un secteur</option>
+                                        <select wire:model.live="secteur_id" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                                            <option value="">Sélectionnez d'abord un secteur</option>
                                             @foreach($secteurs as $secteur)
                                                 <option value="{{ $secteur->id }}">{{ $secteur->denomination }}</option>
                                             @endforeach
                                         </select>
                                         @error('secteur_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Date *</label>
+                                        <input type="date" wire:model="date_activite" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                                        @error('date_activite') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <!-- 2. Intitulé de l'activité (filtré par le secteur sélectionné) -->
+                                    <div class="md:col-span-2 relative" x-data="{ openSuggestions: false }">
+                                        <label class="block text-sm font-medium text-gray-700">Intitulé de l'activité *</label>
+                                        <div class="relative mt-1">
+                                            <input 
+                                                type="text" 
+                                                wire:model.live.debounce.150ms="intitule" 
+                                                @focus="openSuggestions = true"
+                                                @click.outside="openSuggestions = false"
+                                                placeholder="{{ $selectedSecteurName ? 'Choisissez une activité pour '.$selectedSecteurName.' ou saisissez un intitulé...' : 'Sélectionnez un secteur ci-dessus pour des suggestions ciblées...' }}"
+                                                class="block w-full border border-gray-300 rounded-md p-2 pr-10 focus:border-unhcr-blue focus:ring-unhcr-blue" 
+                                                required
+                                                autocomplete="off"
+                                            >
+                                            <button 
+                                                type="button" 
+                                                @click="openSuggestions = !openSuggestions"
+                                                class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-unhcr-blue"
+                                                title="Afficher les suggestions"
+                                            >
+                                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': openSuggestions }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Dropdown de suggestions -->
+                                        <div 
+                                            x-show="openSuggestions" 
+                                            x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="transform opacity-0 scale-95"
+                                            x-transition:enter-end="transform opacity-100 scale-100"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="transform opacity-100 scale-100"
+                                            x-transition:leave-end="transform opacity-0 scale-95"
+                                            class="absolute z-30 mt-1 w-full bg-white rounded-md shadow-lg border border-slate-200 max-h-60 overflow-y-auto"
+                                            style="display: none;"
+                                        >
+                                            @if(count($suggestions) > 0)
+                                                <div class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-unhcr-blue bg-unhcr-pale border-b border-slate-100 flex justify-between items-center sticky top-0 bg-unhcr-pale z-10">
+                                                    <span>
+                                                        @if($selectedSecteurName)
+                                                            Suggestions pour {{ $selectedSecteurName }} ({{ count($suggestions) }})
+                                                        @else
+                                                            Suggestions d'activités ({{ count($suggestions) }})
+                                                        @endif
+                                                    </span>
+                                                    <span class="text-[10px] text-gray-500 font-normal">Cliquer pour sélectionner</span>
+                                                </div>
+                                                <ul class="divide-y divide-gray-100">
+                                                    @foreach($suggestions as $suggestion)
+                                                        <li>
+                                                            <button 
+                                                                type="button" 
+                                                                wire:click="selectSuggestion('{{ $suggestion->id }}')"
+                                                                @click="openSuggestions = false"
+                                                                class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-unhcr-pale hover:text-unhcr-blue transition flex items-center justify-between group"
+                                                            >
+                                                                <span class="font-medium text-gray-800 group-hover:text-unhcr-blue">{{ $suggestion->activite }}</span>
+                                                                <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-unhcr-dark shrink-0">
+                                                                    {{ $suggestion->secteur }}
+                                                                </span>
+                                                            </button>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <div class="p-3 text-center text-xs text-gray-500">
+                                                    Aucune suggestion trouvée. Vous pouvez saisir un intitulé personnalisé.
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @error('intitule') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            @if($selectedSecteurName)
+                                                Les suggestions ci-dessus sont filtrées pour le secteur <strong>{{ $selectedSecteurName }}</strong>. Vous pouvez aussi écrire votre propre intitulé.
+                                            @else
+                                                Astuce : sélectionnez un secteur ci-dessus pour obtenir les activités recommandées pour ce secteur.
+                                            @endif
+                                        </p>
                                     </div>
 
                                     <!-- Description -->

@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 use App\Models\Activite;
 use App\Models\Secteur;
 use App\Models\Province;
+use App\Models\ActiviteSuggestion;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 
@@ -133,11 +134,64 @@ class ActiviteFormModal extends Component
         $this->redirect(request()->header('Referer'));
     }
 
+    public function selectSuggestion($id)
+    {
+        $suggestion = ActiviteSuggestion::find($id);
+        if ($suggestion) {
+            $this->intitule = $suggestion->activite;
+
+            if ($suggestion->secteur) {
+                $secteurs = Secteur::all();
+                foreach ($secteurs as $secteur) {
+                    if (
+                        mb_stripos($secteur->denomination, $suggestion->secteur) !== false || 
+                        mb_stripos($suggestion->secteur, $secteur->denomination) !== false
+                    ) {
+                        $this->secteur_id = $secteur->id;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     public function render()
     {
+        $suggestionsQuery = ActiviteSuggestion::query();
+        $selectedSecteurName = null;
+
+        if ($this->secteur_id) {
+            $secteur = Secteur::find($this->secteur_id);
+            if ($secteur) {
+                $selectedSecteurName = $secteur->denomination;
+                $denom = $secteur->denomination;
+                $suggestionsQuery->where(function ($q) use ($denom) {
+                    $q->where('secteur', 'LIKE', '%' . $denom . '%');
+                    $words = array_filter(explode(' ', $denom), fn($w) => mb_strlen($w) > 3);
+                    foreach ($words as $word) {
+                        $q->orWhere('secteur', 'LIKE', '%' . $word . '%');
+                    }
+                });
+            }
+        }
+
+        if (!empty(trim($this->intitule))) {
+            $searchTerm = trim($this->intitule);
+            $matchingInSecteur = (clone $suggestionsQuery)->where('activite', 'LIKE', '%' . $searchTerm . '%')->count();
+            if ($matchingInSecteur > 0) {
+                $suggestionsQuery->where('activite', 'LIKE', '%' . $searchTerm . '%');
+            } else {
+                $suggestionsQuery = ActiviteSuggestion::where('activite', 'LIKE', '%' . $searchTerm . '%');
+            }
+        }
+
+        $suggestions = $suggestionsQuery->orderBy('activite')->limit(20)->get();
+
         return view('livewire.reporting.activites.activite-form-modal', [
             'secteurs' => Secteur::orderBy('denomination')->get(),
             'provinces' => Province::orderBy('nom_province')->get(),
+            'suggestions' => $suggestions,
+            'selectedSecteurName' => $selectedSecteurName,
         ]);
     }
 }
